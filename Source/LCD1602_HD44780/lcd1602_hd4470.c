@@ -26,6 +26,7 @@ void lcd1602_set_cursor(uint8_t row, uint8_t col)
 
 void lcd1602_write_char(char c) 
 {
+    
 }
 
 void lcd1602_write_string(const char *str) 
