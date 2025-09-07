@@ -12,8 +12,4 @@ Type:
     - `chore`: anything else with small change have no name
 
 3. Coding Style Rules  
-Chose the Coding Style Rules
-    - K&R (Kernighan & Ritchie) Style
-    - Allman Style
-    - [Google C++ Style Guide](https://google.github.io/styleguide/)
-
+Chose the Coding Style Rules: Misra C 2025
