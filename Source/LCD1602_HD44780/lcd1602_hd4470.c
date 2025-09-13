@@ -1,16 +1,29 @@
-#include "lcd1602_hd4470.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 
-// Define GPIO operations for your platform here
-// Example stub functions:
+#include "display_config.h"
+#include "lcd1602_hd4470.h"
 
-// LCD1602 commands
-
+#ifdef PLATFORM_TI
+#include "inc/hw_memmap.h"
+#include "driverlib/gpio.h"
+#endif // PLATFORM_TI
 
 void lcd1602_init(void) 
 {
+    // Initialize GPIO pins for RS, RW, E, and data lines
+    // Send initialization commands to LCD1602
+    lcd_delay_ms(50); // Wait for LCD to power up
+    lcd_write_command(0x38); // Function set: 8-bit, 2 lines, 5x8 dots
+    lcd_delay_ms(5);    // Wait
+    lcd_write_command(0x0C); // Display ON, Cursor OFF
+    lcd_delay_ms(5);    // Wait
+    lcd_write_command(0x01); // Clear display
+    lcd_delay_ms(5);    // Wait
+    lcd_write_command(0x06); // Entry mode set: Increment cursor
+    lcd_delay_ms(5);    // Wait
+
 
 }
 
@@ -38,6 +51,8 @@ void lcd1602_write_string(const char *str)
 static void lcd_write_data(uint8_t data) 
 {
     // Implement GPIO write for data
+    write_gpio(GPIO_PORT_DATA, LCD_DATA_PINS, data);
+
 }
 
 static void lcd_write_command(uint8_t cmd) 
