@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-static void display_write_command(uint8_t cmd);
 void display_init(void);
 void display_clear(void);
 void display_print(const char* str);

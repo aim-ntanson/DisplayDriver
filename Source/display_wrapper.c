@@ -1,12 +1,15 @@
 #include "display_wrapper.h"
-# include "display_config.h"
+#include "display_config.h"
 
-static void display_write_command(uint8_t cmd) {
-    //todo
-}
+#ifdef LCD16x2_HD44780
+#include "./LCD1602_HD44780/lcd1602_hd4470.h"
+#endif //LCD16x2_HD44780
 
 void display_init(void) {
-    //todo
+#ifdef LCD16x2_HD44780
+    lcd1602_init();
+#endif //LCD16x2_HD44780
+
 }
 
 void display_clear(void) {
