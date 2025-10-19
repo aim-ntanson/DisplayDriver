@@ -9,6 +9,14 @@
  */
 #define LCD16x2_HD44780 // replace this define for other display
 
+/**
+ * Config chipset
+ * - TI_CHIPSET
+ * - STM_CHIPSET
+ */
+#define TI_CHIPSET // replace this define for other chip set
+
+
 #ifdef LCD16x2_HD44780
 // Configuration for LCD1602 with HD44780 controller
 #define LCD16x2_NUM_PINS_DATA 4 // 4 or 8 data pins
