@@ -19,3 +19,4 @@ void display_clear(void) {
 void display_print(const char *str) {
     //todo
 }
+

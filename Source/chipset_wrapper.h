@@ -1,8 +1,12 @@
-#ifndef __CHIPSET_WRAPPER__
+#ifndef __CHIPSET_WRAPPER_H__
+#define __CHIPSET_WRAPPER_H__
+
 #include "display_config.h"
 
 #ifdef TI_CHIPSET
-#include "inc/hw_memmap.h"
+// #include "inc/hw_memmap.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "driverlib/gpio.h"
 #endif // TI_CHIPSET
 
