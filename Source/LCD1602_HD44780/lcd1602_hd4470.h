@@ -33,8 +33,14 @@
 // LCD1602 commands
 #define SET_V0_PIN (HD4470_V0_PIN | 0x00) 
 
+// LCD1602 Instruction command
+#define LCD_CLEAR   0x01
+
 // Util function
 static void lcd_delay_ms(uint32_t ms);
+static void falling_edge(void);
+static void send_4bit(uint8_t data); 
+static void send_8bit(uint8_t data); 
 
 // Function prototypes
 static uint8_t lcd_read(void);
