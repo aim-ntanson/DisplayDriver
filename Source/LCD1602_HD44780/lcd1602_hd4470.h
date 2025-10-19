@@ -1,9 +1,10 @@
-#ifndef LCD1602_HD4470_H
-#define LCD1602_HD4470_H
+#ifndef __LCD1602_HD4470_H__
+#define __LCD1602_HD4470_H__
 
 #include <stdint.h>
 
 #include "./../display_wrapper.h"
+#include "./../chipset_wrapper.h"
 
 // LCD1602 PIN configuration
 #define HD4470_V0_PORT      WRAPPER_V0_PORT  // Register Select pin
@@ -98,7 +99,7 @@
 // Function prototypes
 void lcd1602_init(void);
 static void lcd1602_clear(void);
-static void lcd_write_command(uint8_t cmd);
+static void lcd_write_command(uint8_t cmd_data);
 static void lcd_write_data(uint8_t data);
 static void lcd_delay_ms(uint32_t ms);
 static void falling_edge(void);
