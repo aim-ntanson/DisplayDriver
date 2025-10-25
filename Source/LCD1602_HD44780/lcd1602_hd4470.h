@@ -38,18 +38,10 @@
 //INTRUCSTIONS
 
 // RS_RW DATA
-#define RS_RW_CLEARDISPLAY                0x00    // 0000 0000
-#define RS_RW_RETURNHOME                  0x00    // 0000 0000
-#define RS_RW_ENTRYMODESET                0x00    // 0000 0000
-#define RS_RW_DISPLAYCONTROL              0x00    // 0000 0000
-#define RS_RW_CURSORSHIFT                 0x00    // 0000 0000
-#define RS_RW_FUNCTIONSET                 0x00    // 0000 0000
-#define RS_RW_SETCGRAMADDR                0x00    // 0000 0000
-#define RS_RW_SETDDRAMADDR                0x00    // 0000 0000
-#define RS_RW_READ_BUSYFLAG_ADDCOUNTER    0x00    // 0000 0000
-
-#define RS_RW_WRITE                      0x02    // 0000 0000
-#define RS_RW_READ                       0x03    // 0000 0100   
+#define RS_RW_MODE_FUCTION      0x00    // 0000 0000
+#define RS_RW_MODE_BUSY_FLAG    0x01    // 0000 0001
+#define RS_RW_MODE_WRITE_RAM    0x02    // 0000 0000
+#define RS_RW_MODE_READ_RAM     0x03    // 0000 0100   
 
 
 // ======================
@@ -79,6 +71,12 @@
 #define F_5x10         0x04  // F = 1: 5x10 font
 #define F_5x8          0x00  // F = 0: 5x8 font
 
+// Set CGRAM Address
+#define SET_CGRAM_ADDR  0x40
+
+// Set DDRAM Address
+#define SET_DDRAM_ADDR  0x80
+
 // Display ON/OFF Control (0x08 | D<<2 | C<<1 | B)
 #define DISPLAY_CTRL   0x08
 #define DISPLAY_ON     0x04
@@ -98,11 +96,13 @@
 
 // Function prototypes
 void lcd1602_init(void);
-static void lcd1602_clear(void);
-static void lcd_write_command(uint8_t cmd_data);
+void lcd1602_clear(void);
+void lcd1602_set_cursor(uint8_t row, uint8_t col);
+void lcd1602_return_home(void) ;
+static void lcd_write_command(uint8_t RS_RW_cmd, uint8_t cmd_data);
 static void lcd_write_data(uint8_t data);
 static void lcd_delay_ms(uint32_t ms);
 static void falling_edge(void);
 static void send_4bit(uint8_t data); 
-static void send_8bit(uint8_t data); 
+static void send_8bit(uint8_t data);
 #endif // LCD1602_HD4470_H

@@ -87,26 +87,32 @@ void lcd1602_init(void)
     send_4bit(0x02);
 #endif
 
-    lcd_write_command(FUNCTION_SET | DL_4BIT | N_2LINE | F_5x8);
+    lcd_write_command(RS_RW_MODE_FUCTION, FUNCTION_SET | DL_4BIT | N_2LINE | F_5x8);
     lcd_delay_ms(5);
-    lcd_write_command(DISPLAY_CTRL | DISPLAY_ON | CURSOR_OFF );
+    lcd_write_command(RS_RW_MODE_FUCTION DISPLAY_CTRL | DISPLAY_ON | CURSOR_OFF);
     lcd_delay_ms(1);
 
     lcd1602_clear();
 
-    lcd_write_command(ENTRYMODE | ID_INCREASE | S_SHIFT);
+    lcd_write_command(RS_RW_MODE_FUCTION, ENTRYMODE | ID_INCREASE | S_SHIFT);
     lcd_delay_ms(5);
 
 }
 
 void lcd1602_clear(void) 
 {
-
-    lcd_write_command(LCD_CLEAR);
+    lcd_write_command(RS_RW_MODE_FUCTION, LCD_CLEAR);
     lcd_delay_ms(5);
 }
 
 void lcd1602_set_cursor(uint8_t row, uint8_t col) 
 {
+    uint8_t row_offsets[] = {0x00, 0x40, 0x14, 0x54};
+    lcd_write_command(RS_RW_MODE_FUCTION, SET_DDRAM_ADDR | (row_offsets[row] + col));
+    lcd_delay_ms(5);
+}
 
+void lcd1602_return_home(void) 
+{
+    lcd_write_command(RS_RW_MODE_FUCTION, LCD_HOME);
 }
