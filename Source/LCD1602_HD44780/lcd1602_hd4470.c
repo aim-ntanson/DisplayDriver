@@ -47,10 +47,10 @@ uint8_t lcd_read(void)
 
 }
 
-static void lcd_write_command(uint8_t cmd_data)
+static void lcd_write_command(uint8_t RS_RW_cmd, uint8_t cmd_data)
 {
-    write_gpio(HD4470_RS_PORT, HD4470_RS_PIN, 0); // Command mode
-    write_gpio(HD4470_RS_PORT, HD4470_RW_PIN, 0); // Command mode
+    write_gpio(HD4470_RS_PORT, HD4470_RS_PIN, RS_RW_cmd & 0x01); // Command mode
+    write_gpio(HD4470_RW_PORT, HD4470_RW_PIN, RS_RW_cmd & 0x02); // Command mode
 
 #if LCD16x2_NUM_PINS_DATA == 4
     send_4bit(cmd_data >> 4);    
