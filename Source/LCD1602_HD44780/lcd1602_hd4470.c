@@ -35,10 +35,7 @@ void send_4bit(uint8_t data)
 
 void send_8bit(uint8_t data)
 {
-    #if LCD16x2_NUM_PINS_DATA == 4
-        send_4bit(data >> 4);    
-        send_4bit(data);
-    #endif
+    //todo
 }
 
 uint8_t lcd_read(void)
@@ -90,16 +87,15 @@ void lcd1602_init(void)
     send_4bit(0x02);
 #endif
 
-    send_8bit(0x28); // Function set: 4-bit, 2 lines, 5x8 dots
-    lcd_delay_ms(5);    // Wait
-    send_8bit(0x0C); // Display ON, Cursor OFF
-    lcd_delay_ms(5);    // Wait
+    lcd_write_command(FUNCTION_SET | DL_4BIT | N_2LINE | F_5x8);
+    lcd_delay_ms(5);
+    lcd_write_command(DISPLAY_CTRL | DISPLAY_ON | CURSOR_OFF );
+    lcd_delay_ms(1);
 
-    lcd1602_clear(); // Clear display
-    
-    send_8bit(0x06); // Entry mode set: Increment cursor
-    lcd_delay_ms(5);    // Wait
+    lcd1602_clear();
 
+    lcd_write_command(ENTRYMODE | ID_INCREASE | S_SHIFT);
+    lcd_delay_ms(5);
 
 }
 
