@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 #include "./../display_wrapper.h"
-#include "./../chipset_wrapper.h"
 
 // LCD1602 PIN configuration
 #define HD4470_V0_PORT      WRAPPER_V0_PORT  // Register Select pin

@@ -4,11 +4,7 @@
 
 #include "./../display_config.h"
 #include "lcd1602_hd4470.h"
-
-#ifdef TI_CHIPSET
-#include "inc/hw_memmap.h"
-#include "driverlib/gpio.h"
-#endif // TI_CHIPSET
+#include "chipset_wrapper.h"
 
 static void lcd_delay_ms(uint32_t ms) 
 {
