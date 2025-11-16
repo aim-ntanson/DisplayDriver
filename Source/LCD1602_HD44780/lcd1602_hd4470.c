@@ -89,7 +89,7 @@ void lcd1602_init(void)
 
     lcd_write_command(RS_RW_MODE_FUCTION, FUNCTION_SET | DL_4BIT | N_2LINE | F_5x8);
     lcd_delay_ms(5);
-    lcd_write_command(RS_RW_MODE_FUCTION DISPLAY_CTRL | DISPLAY_ON | CURSOR_OFF);
+    lcd_write_command(RS_RW_MODE_FUCTION, DISPLAY_CTRL | DISPLAY_ON | CURSOR_OFF);
     lcd_delay_ms(1);
 
     lcd1602_clear();
