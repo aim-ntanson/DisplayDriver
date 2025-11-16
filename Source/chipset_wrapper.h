@@ -32,7 +32,7 @@ static inline void write_gpio(uint32_t ui32Port, uint8_t ui8Pins, uint8_t ui8Val
 
 static inline void delay(uint32_t ms) {
 #ifdef TI_CHIPSET
-    SysCtlDelay(ms);
+    SysCtlDelay(ms*10000);
 #elif defined(STM_CHIPSET)
     HAL_Delay(ms);
 #else

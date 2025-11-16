@@ -8,7 +8,7 @@
 
 static void lcd_delay_ms(uint32_t ms) 
 {
-    // Implement delay
+    delay(ms);
 }
 
 void falling_edge(void)
