@@ -3,11 +3,13 @@
 
 #include "display_config.h"
 
-#ifdef TI_CHIPSET
-// #include "inc/hw_memmap.h"
 #include <stdint.h>
 #include <stdbool.h>
+
+#ifdef TI_CHIPSET
+// #include "inc/hw_memmap.h"
 #include "driverlib/gpio.h"
+#include "sysctl.h"
 #endif // TI_CHIPSET
 
 
@@ -23,6 +25,16 @@ static inline void write_gpio(uint32_t ui32Port, uint8_t ui8Pins, uint8_t ui8Val
     GPIOPinWrite(ui32Port, ui8Pins, ui8Val);
 #elif defined(STM_CHIPSET)
     HAL_GPIO_WritePin((GPIO_TypeDef*)ui32Port, ui8Pins, ui8Val);
+#else
+    #error "No supported chipset defined"
+#endif
+}
+
+static inline void delay(uint32_t ms) {
+#ifdef TI_CHIPSET
+    SysCtlDelay(ms*10000);
+#elif defined(STM_CHIPSET)
+    HAL_Delay(ms);
 #else
     #error "No supported chipset defined"
 #endif

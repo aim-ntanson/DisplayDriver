@@ -4,15 +4,11 @@
 
 #include "./../display_config.h"
 #include "lcd1602_hd4470.h"
-
-#ifdef TI_CHIPSET
-#include "inc/hw_memmap.h"
-#include "driverlib/gpio.h"
-#endif // TI_CHIPSET
+#include "chipset_wrapper.h"
 
 static void lcd_delay_ms(uint32_t ms) 
 {
-    // Implement delay
+    delay(ms);
 }
 
 void falling_edge(void)
@@ -89,7 +85,7 @@ void lcd1602_init(void)
 
     lcd_write_command(RS_RW_MODE_FUCTION, FUNCTION_SET | DL_4BIT | N_2LINE | F_5x8);
     lcd_delay_ms(5);
-    lcd_write_command(RS_RW_MODE_FUCTION DISPLAY_CTRL | DISPLAY_ON | CURSOR_OFF);
+    lcd_write_command(RS_RW_MODE_FUCTION, DISPLAY_CTRL | DISPLAY_ON | CURSOR_OFF);
     lcd_delay_ms(1);
 
     lcd1602_clear();
