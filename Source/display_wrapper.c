@@ -1,6 +1,6 @@
 #include "display_wrapper.h"
 #include "display_config.h"
-#include "lcd1602_hd4470.h"
+#include "LCD1602_HD44780/lcd1602_hd4470.h"
 
 #ifdef LCD16x2_HD44780
 #include "./LCD1602_HD44780/lcd1602_hd4470.h"
