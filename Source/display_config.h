@@ -1,6 +1,7 @@
 #ifndef __DISPLAY_CONFIG_H__
 #define __DISPLAY_CONFIG_H__
 
+#include "hw_memmap.h"
 /**
  * Config display is used
  * - LCD1602 with HD44780 controller: LCD16x2_HD44780
@@ -25,12 +26,12 @@
 #define WRAPPER_V0_PORT     GPIO_PORTE_BASE
 
 #define WRAPPER_RS_PIN      GPIO_PIN_1
-#define WRAPPER_RS_PORT     GPIO_PORTF_BASE
+#define WRAPPER_RS_PORT     GPIO_PORTE_BASE
 
-#define WRAPPER_RW_PIN      GPIO_PIN_3
+#define WRAPPER_RW_PIN      GPIO_PIN_2
 #define WRAPPER_RW_PORT     GPIO_PORTE_BASE
 
-#define WRAPPER_E_PIN       GPIO_PIN_2
+#define WRAPPER_E_PIN       GPIO_PIN_3
 #define WRAPPER_E_PORT      GPIO_PORTE_BASE
 
 #if LCD16x2_NUM_PINS_DATA == 8

@@ -12,6 +12,7 @@
 #include "sysctl.h"
 #endif // TI_CHIPSET
 
+// extern volatile uint32_t g_ui32SysTickCount;
 
 /**
  * @brief Write a value to GPIO pin(s) in a chipset-agnostic way.
@@ -32,7 +33,13 @@ static inline void write_gpio(uint32_t ui32Port, uint8_t ui8Pins, uint8_t ui8Val
 
 static inline void delay(uint32_t ms) {
 #ifdef TI_CHIPSET
-    SysCtlDelay(ms*10000);
+    // Reset counter
+    // g_ui32SysTickCount = 0;
+    
+    // while(g_ui32SysTickCount < ms)
+    // {
+    // }
+    // SysCtlDelay(15000000);
 #elif defined(STM_CHIPSET)
     HAL_Delay(ms);
 #else
