@@ -3,8 +3,8 @@
 
 #include "display_config.h"
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifdef TI_CHIPSET
 // #include "inc/hw_memmap.h"
@@ -21,31 +21,30 @@
  * @param ui8Pins The GPIO pin(s) to write to.
  * @param ui8Val The value to write to the pin(s) (typically 0 or 1).
  */
-static inline void write_gpio(uint32_t ui32Port, uint8_t ui8Pins, uint8_t ui8Val) {
+static inline void write_gpio(uint32_t ui32Port, uint8_t ui8Pins,
+                              uint8_t ui8Val) {
 #ifdef TI_CHIPSET
-    GPIOPinWrite(ui32Port, ui8Pins, ui8Val);
+  GPIOPinWrite(ui32Port, ui8Pins, ui8Val);
 #elif defined(STM_CHIPSET)
-    HAL_GPIO_WritePin((GPIO_TypeDef*)ui32Port, ui8Pins, ui8Val);
+  HAL_GPIO_WritePin((GPIO_TypeDef *)ui32Port, ui8Pins, ui8Val);
+#elif defined(ESP32_CHIPSET)
+  gpio_set_level((gpio_num_t)ui8Pins, ui8Val);
+  (void)ui32Port; // Port unused in ESP32 implementation
 #else
-    #error "No supported chipset defined"
+#error "No supported chipset defined"
 #endif
 }
 
 static inline void delay(uint32_t ms) {
 #ifdef TI_CHIPSET
-    // Reset counter
-    // g_ui32SysTickCount = 0;
-    
-    // while(g_ui32SysTickCount < ms)
-    // {
-    // }
-    // SysCtlDelay(15000000);
+  SysCtlDelay(ms * 10000);
 #elif defined(STM_CHIPSET)
-    HAL_Delay(ms);
+  HAL_Delay(ms);
+#elif defined(ESP32_CHIPSET)
+  ets_delay_us(ms * 1000);
 #else
-    #error "No supported chipset defined"
+#error "No supported chipset defined"
 #endif
 }
-
 
 #endif //__CHIPSET_WRAPPER__
