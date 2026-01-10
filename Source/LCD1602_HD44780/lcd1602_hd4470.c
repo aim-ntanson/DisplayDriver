@@ -3,9 +3,10 @@
 #include <stddef.h>
 
 #include "./../display_config.h"
-#include "lcd1602_hd4470.h"
 #include "chipset_wrapper.h"
+#include "lcd1602_hd4470.h"
 
+#ifdef LCD16x2_HD44780
 extern volatile uint32_t g_ui32SysTickCount;
 
 static void lcd_delay_ms(uint32_t ms) 
@@ -15,8 +16,7 @@ static void lcd_delay_ms(uint32_t ms)
         // Reset counter
     g_ui32SysTickCount = 0;
     
-    while(g_ui32SysTickCount < ms)
-    {
+  while (g_ui32SysTickCount < ms) {
     }
 }
 
@@ -30,10 +30,10 @@ void falling_edge(void)
 
 void send_4bit(uint8_t data)
 {
-    write_gpio(HD4470_DATA_4_PORT, HD4470_DATA_4_PIN,  (data << 4u) & 0x10);
-    write_gpio(HD4470_DATA_5_PORT, HD4470_DATA_5_PIN,  (data << 4u) & 0x20);
-    write_gpio(HD4470_DATA_6_PORT, HD4470_DATA_6_PIN,  (data << 4u) & 0x40);
-    write_gpio(HD4470_DATA_7_PORT, HD4470_DATA_7_PIN,  (data << 4u) & 0x80);
+  write_gpio(HD4470_DATA_4_PORT, HD4470_DATA_4_PIN, (data << 4u) & 0x10);
+  write_gpio(HD4470_DATA_5_PORT, HD4470_DATA_5_PIN, (data << 4u) & 0x20);
+  write_gpio(HD4470_DATA_6_PORT, HD4470_DATA_6_PIN, (data << 4u) & 0x40);
+  write_gpio(HD4470_DATA_7_PORT, HD4470_DATA_7_PIN, (data << 4u) & 0x80);
     falling_edge();
 
 }
@@ -45,8 +45,8 @@ void send_8bit(uint8_t data)
 
 uint8_t lcd_read(void)
 {
-    //todo
-
+  // todo
+  return 0;
 }
 
 static void lcd_write_command(uint8_t RS_RW_cmd, uint8_t cmd_data)
@@ -61,7 +61,6 @@ static void lcd_write_command(uint8_t RS_RW_cmd, uint8_t cmd_data)
 
 }
 
-
 void lcd_write_data(uint8_t data)
 {
     write_gpio(HD4470_RS_PORT, HD4470_RS_PIN, 1); // Command mode
@@ -71,7 +70,6 @@ void lcd_write_data(uint8_t data)
     send_4bit(data >> 4);
     send_4bit(data);
 #endif
-
 }
 
 
@@ -79,8 +77,7 @@ void lcd1602_init(void)
 {
          falling_edge();
 
-
-    write_gpio(HD4470_E_PORT,  HD4470_E_PIN,  0);
+  write_gpio(HD4470_E_PORT, HD4470_E_PIN, 0);
     write_gpio(HD4470_RS_PORT, HD4470_RS_PIN, 0);
     lcd_delay_ms(50); // Wait for LCD to power up
         //  falling_edge();
@@ -108,9 +105,7 @@ void lcd1602_init(void)
     lcd_write_command(RS_RW_MODE_FUCTION, ENTRYMODE | ID_INCREASE | S_SHIFT);
     lcd_delay_ms(5);
 
-
     falling_edge();
-
 }
 
 void lcd1602_clear(void) 
@@ -131,3 +126,5 @@ void lcd1602_return_home(void)
 {
     lcd_write_command(RS_RW_MODE_FUCTION, LCD_HOME);
 }
+
+#endif // LCD16x2_HD44780
