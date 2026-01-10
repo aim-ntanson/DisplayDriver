@@ -8,15 +8,15 @@
  * - OLED SSD1306 controller: OLED_SSD1306
  * 
  */
-#define LCD16x2_HD44780 // replace this define for other display
+#define OLED_SSD1306 // replace this define for other display
 
 /**
- * Config chipset
+ * Config chipset using
  * - TI_CHIPSET
  * - STM_CHIPSET
+ * - ESP32_CHIPSET
  */
-#define TI_CHIPSET // replace this define for other chip set
-
+#define ESP32_CHIPSET // replace this define for other chip set
 
 #ifdef LCD16x2_HD44780
 // Configuration for LCD1602 with HD44780 controller
@@ -74,5 +74,11 @@
 
 #endif // LCD data pins mode
 #endif // LCD16x2_HD44780
+
+#ifdef OLED_SSD1306
+// Configuration for OLED SSD1306 controller
+#define SSD1306_RES_PIN GPIO_NUM_0 // TODO: Update with actual PIN
+#define SSD1306_RES_PORT 0         // Port unused in ESP32 wrapper
+#endif                             // OLED_SSD1306
 
 #endif // __DISPLAY_CONFIG_H__
