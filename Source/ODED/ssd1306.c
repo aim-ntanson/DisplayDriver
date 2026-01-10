@@ -5,8 +5,6 @@
 
 // Externally defined helper functions (per requirements)
 extern void ssd1306_send_command(uint8_t cmd);
-extern void delay_us(uint32_t us);
-extern void delay_ms(uint32_t ms);
 
 void ssd1306_init(void) {
   // Hardware Power-On and Reset Sequence

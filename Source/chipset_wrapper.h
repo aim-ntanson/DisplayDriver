@@ -12,6 +12,11 @@
 #include "sysctl.h"
 #endif // TI_CHIPSET
 
+#ifdef ESP32_CHIPSET
+#include "driver/gpio.h"
+#include "rom/ets_sys.h"
+#endif // ESP32_CHIPSET
+
 // extern volatile uint32_t g_ui32SysTickCount;
 
 /**
@@ -35,13 +40,25 @@ static inline void write_gpio(uint32_t ui32Port, uint8_t ui8Pins,
 #endif
 }
 
-static inline void delay(uint32_t ms) {
+static inline void delay_ms(uint32_t ms) {
 #ifdef TI_CHIPSET
   SysCtlDelay(ms * 10000);
 #elif defined(STM_CHIPSET)
   HAL_Delay(ms);
 #elif defined(ESP32_CHIPSET)
   ets_delay_us(ms * 1000);
+#else
+#error "No supported chipset defined"
+#endif
+}
+
+static inline void delay_us(uint32_t us) {
+#ifdef TI_CHIPSET
+  SysCtlDelay(us * 10);
+#elif defined(STM_CHIPSET)
+
+#elif defined(ESP32_CHIPSET)
+  ets_delay_us(us);
 #else
 #error "No supported chipset defined"
 #endif
