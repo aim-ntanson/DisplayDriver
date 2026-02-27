@@ -1,66 +1,149 @@
 #include "ssd1306.h"
-#include "../chipset_wrapper.h" // For write_gpio if supported, simplified assumption below
+#include "../chipset_wrapper.h"
 #include "../display_config.h"
+#include "driver/i2c.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include <stdint.h>
+#include <string.h>
 
-// Externally defined helper functions (per requirements)
-extern void ssd1306_send_command(uint8_t cmd);
+#define SSD1306_I2C_ADDRESS 0x3C
+
+static const uint8_t font5x7[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, // (space)
+    0x00, 0x00, 0x5F, 0x00, 0x00, // !
+    0x00, 0x07, 0x00, 0x07, 0x00, // "
+    0x14, 0x7F, 0x14, 0x7F, 0x14, // #
+    0x24, 0x2A, 0x7F, 0x2A, 0x12, // $
+    0x23, 0x13, 0x08, 0x64, 0x62, // %
+    0x36, 0x49, 0x55, 0x22, 0x50, // &
+    0x00, 0x05, 0x03, 0x00, 0x00, // '
+    0x00, 0x1C, 0x22, 0x41, 0x00, // (
+    0x00, 0x41, 0x22, 0x1C, 0x00, // )
+    0x08, 0x2A, 0x1C, 0x2A, 0x08, // *
+    0x08, 0x08, 0x3E, 0x08, 0x08, // +
+    0x00, 0x50, 0x30, 0x00, 0x00, // ,
+    0x08, 0x08, 0x08, 0x08, 0x08, // -
+    0x00, 0x60, 0x60, 0x00, 0x00, // .
+    0x20, 0x10, 0x08, 0x04, 0x02, // /
+    0x3E, 0x51, 0x49, 0x45, 0x3E, // 0
+    0x00, 0x42, 0x7F, 0x40, 0x00, // 1
+    0x42, 0x61, 0x51, 0x49, 0x46, // 2
+    0x21, 0x41, 0x45, 0x4B, 0x31, // 3
+    0x18, 0x14, 0x12, 0x7F, 0x10, // 4
+    0x27, 0x45, 0x45, 0x45, 0x39, // 5
+    0x3C, 0x4A, 0x49, 0x49, 0x30, // 6
+    0x01, 0x71, 0x09, 0x05, 0x03, // 7
+    0x36, 0x49, 0x49, 0x49, 0x36, // 8
+    0x06, 0x49, 0x49, 0x29, 0x1E, // 9
+    0x00, 0x36, 0x36, 0x00, 0x00, // :
+    0x00, 0x56, 0x36, 0x00, 0x00, // ;
+    0x00, 0x08, 0x14, 0x22, 0x41, // <
+    0x14, 0x14, 0x14, 0x14, 0x14, // =
+    0x41, 0x22, 0x14, 0x08, 0x00, // >
+    0x02, 0x01, 0x51, 0x09, 0x06, // ?
+    0x32, 0x49, 0x79, 0x41, 0x3E, // @
+    0x7E, 0x11, 0x11, 0x11, 0x7E, // A
+    0x7F, 0x49, 0x49, 0x49, 0x36, // B
+    0x3E, 0x41, 0x41, 0x41, 0x22, // C
+    0x7F, 0x41, 0x41, 0x22, 0x1C, // D
+    0x7F, 0x49, 0x49, 0x49, 0x41, // E
+    0x7F, 0x09, 0x09, 0x01, 0x01, // F
+    0x3E, 0x41, 0x41, 0x51, 0x32, // G
+    0x7F, 0x08, 0x08, 0x08, 0x7F, // H
+    0x00, 0x41, 0x7F, 0x41, 0x00, // I
+    0x20, 0x40, 0x41, 0x3F, 0x01, // J
+    0x7F, 0x08, 0x14, 0x22, 0x41, // K
+    0x7F, 0x40, 0x40, 0x40, 0x40, // L
+    0x7F, 0x02, 0x04, 0x02, 0x7F, // M
+    0x7F, 0x04, 0x08, 0x10, 0x7F, // N
+    0x3E, 0x41, 0x41, 0x41, 0x3E, // O
+    0x7F, 0x09, 0x09, 0x09, 0x06, // P
+    0x3E, 0x41, 0x51, 0x21, 0x5E, // Q
+    0x7F, 0x09, 0x19, 0x29, 0x46, // R
+    0x46, 0x49, 0x49, 0x49, 0x31, // S
+    0x01, 0x01, 0x7F, 0x01, 0x01, // T
+    0x3F, 0x40, 0x40, 0x40, 0x3F, // U
+    0x1F, 0x20, 0x40, 0x20, 0x1F, // V
+    0x7F, 0x20, 0x18, 0x20, 0x7F, // W
+    0x63, 0x14, 0x08, 0x14, 0x63, // X
+    0x03, 0x04, 0x78, 0x04, 0x03, // Y
+    0x61, 0x51, 0x49, 0x45, 0x43, // Z
+};
+
+void ssd1306_send_command(uint8_t cmd) {
+    i2c_cmd_handle_t handle = i2c_cmd_link_create();
+    i2c_master_start(handle);
+    i2c_master_write_byte(handle, (SSD1306_I2C_ADDRESS << 1) | I2C_MASTER_WRITE,
+                            true);
+    i2c_master_write_byte(handle, 0x00, true); // Control byte: Command
+    i2c_master_write_byte(handle, cmd, true);
+    i2c_master_stop(handle);
+    i2c_master_cmd_begin(I2C_MASTER_NUM, handle, 1000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(handle);
+}
+
+void ssd1306_send_data(uint8_t data) {
+    i2c_cmd_handle_t handle = i2c_cmd_link_create();
+    i2c_master_start(handle);
+    i2c_master_write_byte(handle, (SSD1306_I2C_ADDRESS << 1) | I2C_MASTER_WRITE,
+                            true);
+    i2c_master_write_byte(handle, 0x40, true); // Control byte: Data
+    i2c_master_write_byte(handle, data, true);
+    i2c_master_stop(handle);
+    i2c_master_cmd_begin(I2C_MASTER_NUM, handle, 1000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(handle);
+}
+
+void ssd1306_clear(void) {
+    for (uint8_t i = 0; i < 8; i++) {
+        ssd1306_send_command(0xB0 + i); // Set page address
+        ssd1306_send_command(0x00);     // Set lower column address
+        ssd1306_send_command(0x10);     // Set higher column address
+        for (uint8_t j = 0; j < 128; j++) {
+        ssd1306_send_data(0x00);
+        }
+    }
+}
+
+static void ssd1306_write_char(char c) {
+    if (c < 32 || c > 90)
+        c = 32; // Limit to supported chars in font table
+    uint8_t index = c - 32;
+    for (uint8_t i = 0; i < 5; i++) {
+        ssd1306_send_data(font5x7[index * 5 + i]);
+    }
+    ssd1306_send_data(0x00); // 1px space between chars
+}
+
+void ssd1306_print(const char *str) {
+    while (*str) {
+        ssd1306_write_char(*str++);
+    }
+}
+
+void ssd1306_set_cursor(uint8_t page, uint8_t column) {
+    ssd1306_send_command(0xB0 + page);            // Set page address
+    ssd1306_send_command(0x00 + (column & 0x0F)); // Set lower column address
+    ssd1306_send_command(0x10 + (column >> 4));   // Set higher column address
+}
 
 void ssd1306_init(void) {
-  // Hardware Power-On and Reset Sequence
-  // Assume VDD is already enabled
+    // Hardware Power-On and Reset Sequence
+    if (SSD1306_RES_PIN >= 0 && SSD1306_RES_PIN < GPIO_NUM_MAX) {
+        write_gpio(SSD1306_RES_PORT, SSD1306_RES_PIN, 0);
+        delay_us(3);
+        write_gpio(SSD1306_RES_PORT, SSD1306_RES_PIN, 1);
+        delay_us(3);
+    }
 
-  // Drive the RES# pin LOW for at least 3us
-  write_gpio(SSD1306_RES_PORT, SSD1306_RES_PIN, 0);
-  delay_us(3);
+    // Wait until VCC is stable
+    delay_ms(100);
 
-  // Drive the RES# pin HIGH
-  write_gpio(SSD1306_RES_PORT, SSD1306_RES_PIN, 1);
+    // Software Initialization Command Sequence
+    for (int i = 0; i < sizeof(init_sequence); i++) {
+            ssd1306_send_command(init_sequence[i]);
+    }
 
-  // Wait at least 3us before enabling VCC (internally controlled assumption)
-  delay_us(3);
-
-  // Wait until VCC is stable (Generic wait, standard init often uses 100ms for
-  // power stabilization if unsure) Requirement says "Wait until VCC is stable
-  // before sending any commands" - assume delay_ms(100) covers this or already
-  // stable.
-  delay_ms(100);
-
-  // Software Initialization Command Sequence
-
-  // Enable charge pump
-  ssd1306_send_command(0x8D); // Charge pump setting
-  ssd1306_send_command(0x14); // Enable charge pump
-
-  // Panel configuration
-  ssd1306_send_command(0xA8); // Set MUX Ratio
-  ssd1306_send_command(0x3F); // 64 MUX
-  ssd1306_send_command(0xD3); // Set Display Offset
-  ssd1306_send_command(0x00); // Offset 0
-  ssd1306_send_command(0x40); // Set Display Start Line to 0
-
-  // Hardware configuration
-  ssd1306_send_command(0xA1); // Set Segment Re-map: column 127 mapped to SEG0
-  ssd1306_send_command(0xC8); // Set COM Output Scan Direction: remapped mode
-  ssd1306_send_command(0xDA); // Set COM Pins Hardware Configuration
-  ssd1306_send_command(
-      0x12); // Sequential COM pin config, disable COM Left/Right remap
-
-  // Display configuration
-  ssd1306_send_command(0x81); // Set Contrast Control
-  ssd1306_send_command(0x7F); // Default value
-  ssd1306_send_command(
-      0xA4); // Disable Entire Display On (Resume to RAM content)
-  ssd1306_send_command(0xA6); // Set Normal Display Mode (non-inverted)
-
-  // Clock configuration
-  ssd1306_send_command(
-      0xD5); // Set Display Clock Divide Ratio/Oscillator Frequency
-  ssd1306_send_command(0x80); // Divide ratio = 1, Osc freq = default
-
-  // Turn the display ON
-  ssd1306_send_command(0xAF);
-
-  // Wait at least 100ms after enabling the display
-  delay_ms(100);
+    delay_ms(100);
 }

@@ -1,7 +1,6 @@
 #ifndef __DISPLAY_CONFIG_H__
 #define __DISPLAY_CONFIG_H__
 
-#include "hw_memmap.h"
 /**
  * Config display is used
  * - LCD1602 with HD44780 controller: LCD16x2_HD44780
